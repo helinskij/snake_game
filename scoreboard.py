@@ -1,38 +1,60 @@
-from food import Turtle
+import time
+from turtle import Turtle, Screen
 
+STARTING_POSITIONS = [(0,0),(-20,0),(-40,0)]
+MOVE_DISTANCE = 20
+UP = 90
+DOWN = 270
+LEFT = 180
+RIGHT = 0
 
-class Scoreboard(Turtle):
-
+class Snake:
     def __init__(self):
-        super().__init__()
-        self.score = 0
-        self.highscore = 0
-        with open("high_score.txt", mode="r") as file:
-            self.highscore = int(file.read())
-        self.color("white")
-        self.penup()
-        self.goto(0, 270)
-        self.hideturtle()
-        self.update_scoreboard()
+        self.snake = []
+        self.create_snake()
+        self.head = self.snake[0]
 
-    def update_scoreboard(self):
-        self.clear()
-        self.write(f"Score: {self.score} High Score: {self.highscore}", align="center", font=("Arial", 20, "normal"))
+    def create_snake(self):
+        for position in STARTING_POSITIONS:
+            self.add_segment(position)
 
+    def add_segment(self, position):
+        segment = Turtle(shape="square")
+        segment.color("white")
+        segment.penup()
+        segment.goto(position)
+        self.snake.append(segment)
 
-    def add_point(self):
-        self.score+=1
-        self.clear()
-        self.update_scoreboard()
+    def extend(self):
+        self.add_segment(self.snake[-1].position())
+
+    def move(self):
+        for seg_num in range(len(self.snake) - 1, 0, -1):
+            new_x = self.snake[seg_num - 1].xcor()
+            new_y = self.snake[seg_num - 1].ycor()
+            self.snake[seg_num].goto(new_x, new_y)
+        self.snake[0].forward(MOVE_DISTANCE)
+
+    def up(self):
+        if self.head.heading()!=DOWN:
+            self.head.setheading(UP)
+
+    def down(self):
+        if self.head.heading() != UP:
+            self.head.setheading(DOWN)
+
+    def left(self):
+        if self.head.heading() != RIGHT:
+            self.head.setheading(LEFT)
+
+    def right(self):
+        if self.head.heading() != LEFT:
+            self.head.setheading(RIGHT)
 
     def reset(self):
-        if self.score>self.highscore:
-            self.highscore = self.score
-            with open("high_score.txt", mode="w") as file:
-                file.write(str(self.score))
-        self.score = 0
-        self.update_scoreboard()
-
-
-
+        for seg in self.snake:
+            seg.goto(1000,1000)
+        self.snake.clear()
+        self.create_snake()
+        self.head = self.snake[0]
 
